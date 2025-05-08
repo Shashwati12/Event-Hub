@@ -1,24 +1,29 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const eventRoutes = require('./routes/eventRoutes');
-const registrationRoutes = require('./routes/registrationRoutes'); // ✅ new route
+const registrationRoutes = require('./routes/registrationRoutes');
+const authRoutes = require('./routes/authRoutes');
+const validateTokenRoute = require('./routes/validateToken');
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
 // Routes
+app.use('/api/auth', authRoutes);
+app.use('/api', validateTokenRoute); // This enables /api/validateToken
 app.use('/api/events', eventRoutes);
-app.use('/api/register', registrationRoutes); // ✅ new route mounted
+app.use('/api/register', registrationRoutes); // new route mounted
 
-// DB Connection & Server Start
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGO_URI)
   .then(() => app.listen(PORT, () => console.log(`Server running on port ${PORT}`)))
-  .catch(err => console.log(err));
+  .catch(err => console.error(err));
