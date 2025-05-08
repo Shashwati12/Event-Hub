@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { auth, db } from '@/utils/firebase';
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  updateProfile
-} from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
 import { User, KeyRound, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -26,38 +19,68 @@ export const AuthForm = ({ type, userType }) => {
     setError('');
 
     try {
-      let userCredential;
+      let response;
+      let data;
 
       if (type === 'signup') {
-        userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(userCredential.user, { displayName: name });
-
-        await setDoc(doc(db, 'users', userCredential.user.uid), {
-          name,
-          email,
-          userType,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+        response = await fetch('http://localhost:5000/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, password, userType }),
         });
+
+        if (!response.ok) {
+          throw new Error(`Failed to create account. Status: ${response.status}`);
+        }
+
+        data = await response.json();
+
+        if (data.message) {
+          throw new Error(data.message);
+        }
 
         toast.success('Account created successfully!');
       } else {
-        userCredential = await signInWithEmailAndPassword(auth, email, password);
+        // ✅ Fixed: Send userType during login
+        response = await fetch('http://localhost:5000/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password, userType }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Login failed. Status: ${response.status}`);
+        }
+
+        data = await response.json();
+
+        if (data.message) {
+          throw new Error(data.message);
+        }
+
         toast.success('Logged in successfully!');
       }
 
-      // ✅ Save user info to localStorage
-      localStorage.setItem("user", JSON.stringify({
-        email: userCredential.user.email,
-        uid: userCredential.user.uid,
-        displayName: userCredential.user.displayName || name,
-      }));
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem(
+          'user',
+          JSON.stringify({
+            email,
+            userType,
+            name: name || data.name,
+          })
+        );
 
-      // ✅ Redirect
-      if (userType === 'host') {
-        navigate('/host-dashboard');
-      } else {
-        navigate('/user-home');
+        if (userType === 'host') {
+          navigate('/host-dashboard');
+        } else {
+          navigate('/user-home');
+        }
       }
 
     } catch (err) {
@@ -136,9 +159,7 @@ export const AuthForm = ({ type, userType }) => {
         whileTap={{ scale: 0.98 }}
         type="submit"
         disabled={loading}
-        className={`w-full py-3 px-6 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-lg transition-all duration-200 ${
-          loading ? 'opacity-50 cursor-not-allowed' : ''
-        }`}
+        className={`w-full py-3 px-6 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-lg transition-all duration-200 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         {loading ? 'Processing...' : (type === 'login' ? 'Sign In' : 'Sign Up')}
       </motion.button>
