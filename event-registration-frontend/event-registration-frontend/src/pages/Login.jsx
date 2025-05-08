@@ -44,8 +44,29 @@ export const Login = () => {
     navigate(`/${type}/${newType}`);
   };
 
+  const handleLogin = async (email, password) => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, userType: userTypeState })
+      });
+      const data = await response.json();
+      if (response.status === 200) {
+        // Store JWT token in localStorage or cookies
+        localStorage.setItem('authToken', data.token);
+        // Redirect to the user's dashboard
+        navigate(`/${userTypeState}/dashboard`);
+      } else {
+        alert(data.message || "Login failed!");
+      }
+    } catch (error) {
+      console.error("Error logging in:", error);
+    }
+  };
+
   return (
-    <div 
+    <div
       className="min-h-screen relative overflow-hidden flex items-center justify-center"
       style={{
         background: `linear-gradient(135deg, #310C7E 0%, #9372C1 100%)`,
@@ -94,7 +115,11 @@ export const Login = () => {
             transition={{ duration: 0.5 }}
             className="w-full max-w-md"
           >
-            <AuthForm type={type} userType={userTypeState} />
+            <AuthForm
+              type={type}
+              userType={userTypeState}
+              onLogin={handleLogin} // pass login handler to AuthForm
+            />
           </motion.div>
 
           <motion.p
@@ -116,4 +141,5 @@ export const Login = () => {
     </div>
   );
 };
+
 export default Login;
