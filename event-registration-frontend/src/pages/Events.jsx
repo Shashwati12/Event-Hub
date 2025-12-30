@@ -1,6 +1,6 @@
 // src/pages/Events.jsx
 import React, { useEffect, useState } from "react";
-import Navbar from "@/components/Navbar";
+// import Navbar from "@/components/Navbar";
 import EventCard from "@/components/EventCardD";
 import { Loader2 } from "lucide-react";
 
@@ -97,7 +97,7 @@ const Events = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100">
-      <Navbar />
+      {/* <Navbar /> */}
       <div className="container mx-auto pt-28 pb-16 px-4 md:px-6">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#310C7E] to-[#9372C1] mb-4">

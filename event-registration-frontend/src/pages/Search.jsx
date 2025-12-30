@@ -23,7 +23,7 @@ import {
   FiBookOpen,
 } from "react-icons/fi";
 
-import { mockEvents } from "utils/mockData";
+import { mockEvents } from "utils/MockData";
 import EventCard from "../components/EventCard";
 
 export function Search() {

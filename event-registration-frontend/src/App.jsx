@@ -7,7 +7,7 @@ import EventDetails from "./pages/EventDetails";
 import UserAllEvents from "./pages/user/UserAllEvents";
 import UserMyEvents from "./pages/user/UserMyEvents";
 import HostDashboard from "./pages/admin/AdminDashboard";
-import { ProtectedRoute } from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 
 // General Pages
@@ -15,9 +15,11 @@ import Home from "./pages/Home";
 import Categories from "./pages/Categories";
 import { Search } from "./pages/Search";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import EventRegistrationHelp from "./pages/Help";
 import ContactPage from "./pages/Contact";
 import Events from "./pages/Events";
+import Navbar from "./components/Navbar";
 
 export default function App() {
   const mainStyle = {
@@ -26,6 +28,7 @@ export default function App() {
 
   return (
     <div className="flex flex-col min-h-screen">
+        <Navbar />
       <main className="flex-grow container mx-auto px-4" style={mainStyle}>
         <Routes>
           {/* Default route */}
@@ -38,7 +41,9 @@ export default function App() {
           <Route path="/contact" element={<ContactPage />} />
 
           {/* Login / Auth Route */}
-          <Route path="/:type/:userType" element={<Login />} />
+          <Route path="/login/:userType" element={<Login />} />
+          <Route path="/signup/:userType" element={<Register />} />
+
 
           {/* Admin Routes */}
           <Route
