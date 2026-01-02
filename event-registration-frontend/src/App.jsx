@@ -23,13 +23,14 @@ import Navbar from "./components/Navbar";
 
 export default function App() {
   const mainStyle = {
-    paddingTop: "10px",
+    paddingTop: "50px",
+
   };
 
   return (
     <div className="flex flex-col min-h-screen">
         <Navbar />
-      <main className="flex-grow container mx-auto px-4" style={mainStyle}>
+      <main className="flex-grow container mx-auto" style={mainStyle}>
         <Routes>
           {/* Default route */}
           <Route path="/" element={<Home />} />

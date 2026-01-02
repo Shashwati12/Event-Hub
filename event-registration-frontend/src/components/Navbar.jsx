@@ -7,7 +7,6 @@ import { NotificationIcon } from "./NotificationIcon";
 import { NotificationCenter } from "./NotificationCenter";
 
 export default function Navbar() {
-  // ✅ ALL HOOKS AT TOP (NO CONDITIONS)
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading, logout } = useAuth();
@@ -34,8 +33,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ RETURNS ONLY AFTER ALL HOOKS
-  if (loading || isAuthPage) return null;
+  // if (loading || isAuthPage) return null;
 
   const handleLogout = () => {
     logout();

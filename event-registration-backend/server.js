@@ -5,7 +5,7 @@ const cors = require('cors');
 const eventRoutes = require('./routes/eventRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
 const authRoutes = require('./routes/authRoutes');
-const validateTokenRoute = require('./routes/validateToken');
+// const validateTokenRoute = require('./routes/validateToken');
 
 dotenv.config();
 const app = express();
@@ -20,7 +20,7 @@ app.use('/uploads', express.static('uploads'));
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api', validateTokenRoute); // This enables /api/validateToken
+// app.use('/api', validateTokenRoute); // This enables /api/validateToken
 app.use('/api/events', eventRoutes);
 app.use('/api/register', registrationRoutes); // new route mounted
 
