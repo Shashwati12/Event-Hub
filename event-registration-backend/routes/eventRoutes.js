@@ -12,6 +12,7 @@ const {
   deleteEvent,
   getEventById, 
 } = require('../controllers/eventController');
+const { protect } = require('../middleware/authMiddleware');
 
 // Upload config
 const storage = multer.diskStorage({
@@ -24,16 +25,27 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Routes
-router.post('/create', upload.single('image'), createEvent);
+router.post('/create', upload.single('image'), protect,createEvent);
 router.get('/all', getAllEvents);
-router.get('/hosted/:email', getEventsByHost);
+router.get('/hosted', protect, getEventsByHost);
 router.post('/register', registerForEvent);
 router.get('/registered/:email', getRegisteredEvents);
 
 // Add this route BEFORE the put/delete
 router.get('/:id', getEventById);
 
-router.put('/:id', updateEvent);
-router.delete('/:id', deleteEvent);
+router.put(
+  '/:id',
+  protect,
+  upload.single('image'), // 🔥 REQUIRED
+  updateEvent
+);
+
+router.delete(
+  "/:id",
+  protect,
+  deleteEvent
+);
+
 
 module.exports = router;

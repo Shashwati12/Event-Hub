@@ -15,7 +15,11 @@ const eventSchema = new mongoose.Schema({
   contactEmail: String,
   category: String,
   image: String,
-  createdBy: String
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true, 
+  }
 });
 
 module.exports = mongoose.model('Event', eventSchema);

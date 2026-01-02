@@ -1,32 +1,62 @@
 const Event = require('../models/Event');
 const path = require('path');
 const Registration = require('../models/Registration');
+const fs = require("fs")
+
 
 
 exports.createEvent = async (req, res) => {
   try {
     const {
-      eventName, college, description, minTeam, maxTeam,
-      deadline, startDate, endDate, mode, prize,
-      judgingCriteria, contactEmail, category, createdBy
+      eventName,
+      college,
+      description,
+      minTeam,
+      maxTeam,
+      deadline,
+      startDate,
+      endDate,
+      mode,
+      prize,
+      judgingCriteria,
+      contactEmail,
+      category,
     } = req.body;
 
     const image = req.file ? req.file.path : "";
 
     const newEvent = new Event({
-      eventName, college, description, minTeam, maxTeam,
-      deadline, startDate, endDate, mode, prize,
-      judgingCriteria, contactEmail, category, createdBy,
-      image
+      eventName,
+      college,
+      description,
+      minTeam,
+      maxTeam,
+      deadline,
+      startDate,
+      endDate,
+      mode,
+      prize,
+      judgingCriteria,
+      contactEmail,
+      category,
+
+      createdBy: req.user.id,
+
+      image,
     });
 
     await newEvent.save();
-    res.status(201).json({ message: "Event created successfully", event: newEvent });
+
+    res.status(201).json({
+      message: "Event created successfully",
+      event: newEvent,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
+
 
 exports.getAllEvents = async (req, res) => {
   try {
@@ -72,11 +102,13 @@ exports.registerForEvent = async (req, res) => {
   
   // Get events hosted by admin
   exports.getEventsByHost = async (req, res) => {
-    const { email } = req.params;
     try {
-      const events = await Event.find({ createdBy: email }).sort({ createdAt: -1 });
+      const events = await Event.find({ createdBy: req.user.id })
+        .sort({ createdAt: -1 });
+
       res.json(events);
-    } catch (err) {
+    } catch (error) {
+      console.error(error);
       res.status(500).json({ message: "Failed to fetch hosted events" });
     }
   };
@@ -84,27 +116,104 @@ exports.registerForEvent = async (req, res) => {
 
   // Update an event by ID
 exports.updateEvent = async (req, res) => {
-    try {
-      const updatedEvent = await Event.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-      });
-      res.json(updatedEvent);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Failed to update event" });
+  try {
+    const eventId = req.params.id;
+
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
     }
-  };
-  
+
+    // 🔐 Ownership check (FINAL)
+    if (event.createdBy.toString() !== req.user.id.toString()) {
+      return res.status(403).json({ message: "Not authorized to update this event" });
+    }
+
+    // 🔄 Update allowed fields
+    const updatableFields = [
+      "eventName",
+      "description",
+      "college",
+      "mode",
+      "startDate",
+      "endDate",
+      "deadline",
+      "prize",
+      "judgingCriteria",
+      "minTeam",
+      "maxTeam",
+      "category",
+      "contactEmail",
+    ];
+
+    updatableFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        event[field] = req.body[field];
+      }
+    });
+
+    // 🖼️ HANDLE IMAGE UPDATE
+    if (req.file) {
+      // delete old image if exists
+      if (event.image) {
+        const oldImagePath = path.join(__dirname, "..", event.image);
+
+        fs.unlink(oldImagePath, (err) => {
+          if (err) {
+            console.warn("Failed to delete old image:", err.message);
+          }
+        });
+      }
+
+      // save new image path
+      event.image = req.file.path;
+    }
+
+    await event.save();
+
+    res.json({
+      message: "Event updated successfully",
+      event,
+    });
+  } catch (error) {
+    console.error("Update event error:", error);
+    res.status(500).json({ message: "Failed to update event" });
+  }
+};
+
   // Delete an event by ID
-  exports.deleteEvent = async (req, res) => {
-    try {
-      await Event.findByIdAndDelete(req.params.id);
-      res.json({ message: "Event deleted successfully" });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Failed to delete event" });
+exports.deleteEvent = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
     }
-  };
+
+    // 🔐 Ownership check
+    if (event.createdBy.toString() !== req.user.id.toString()) {
+      return res.status(403).json({ message: "Not authorized to delete this event" });
+    }
+
+    // 🖼️ Delete image if exists
+    if (event.image) {
+      const imagePath = path.join(__dirname, "..", event.image);
+
+      fs.unlink(imagePath, (err) => {
+        if (err) {
+          console.warn("Failed to delete image:", err.message);
+        }
+      });
+    }
+
+    await event.deleteOne();
+
+    res.json({ message: "Event deleted successfully" });
+  } catch (err) {
+    console.error("Delete event error:", err);
+    res.status(500).json({ message: "Failed to delete event" });
+  }
+};
 
 
   // Get event by ID
