@@ -1,4 +1,4 @@
-# 🎉 Event Hub
+# Event Hub
 
 <div align="center">
 
