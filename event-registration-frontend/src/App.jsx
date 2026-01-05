@@ -30,7 +30,7 @@ export default function App() {
   return (
     <div className="flex flex-col min-h-screen">
         <Navbar />
-      <main className="flex-grow container mx-auto" style={mainStyle}>
+      <main className="flex-grow w-full mx-auto" style={mainStyle}>
         <Routes>
           {/* Default route */}
           <Route path="/" element={<Home />} />

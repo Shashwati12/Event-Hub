@@ -5,6 +5,7 @@ const cors = require('cors');
 const eventRoutes = require('./routes/eventRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
 const authRoutes = require('./routes/authRoutes');
+const { protect } = require('./middleware/authMiddleware');
 // const validateTokenRoute = require('./routes/validateToken');
 
 dotenv.config();

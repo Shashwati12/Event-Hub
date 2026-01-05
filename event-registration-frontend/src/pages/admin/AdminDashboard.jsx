@@ -47,7 +47,7 @@ function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-300 to-purple-400 relative">
+    <div className="min-h-screen bg-gradient-to-br from-purple-300 to-purple-400 relative pt-20">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div 
