@@ -76,8 +76,6 @@ export default function HostEvent() {
 
       if (imageFile) payload.append("image", imageFile);
 
-      // 🔥 NO createdBy here
-
       if (eventToEdit) {
         await api.put(`/events/${eventToEdit._id}`, payload, {
           headers: { "Content-Type": "multipart/form-data" },
